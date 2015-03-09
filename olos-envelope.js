@@ -11,12 +11,9 @@
     gainNode: null,
 
     // handle i/o
-    input: null,
+    inputdata: null,
+    inputaudio: null,
     output: null,
-    inputCount: 1,
-    outputCount: 1,
-    inputs: [],
-    outputs: [],
 
     breakpoints: [],
 
@@ -25,6 +22,10 @@
 
     // nexusUI multi envelope
     nexusEl: null,
+
+    observe: {
+      inputdata: 'inputdataChanged'
+    },
 
     // gain node for control
 
@@ -37,8 +38,11 @@
       this.$.container.appendChild(this.nexusEl.canvas);
 
       // gainNode
-      this.input = this.output = this._audioContext.createGain();
+      this.inputaudio = this.output = this._audioContext.createGain();
       this.output.gain.value = 0;
+
+      // input data
+      this.inputdata = [0];
     },
 
     durationChanged: function() {
@@ -47,13 +51,11 @@
     },
 
     start: function() {
-      console.log(this.nexusEl);
       this.nexusEl.start();
-      console.log(this.nexusEl.val.points);
-
 
       // trigger the envelope
       var time = this._audioContext.currentTime;
+      this.output.gain.cancelScheduledValues(time);
 
       for (var i = 0; i <= this.nexusEl.val.points.length; i++) {
         // finally, ramp to 0
@@ -67,6 +69,25 @@
         this.output.gain.linearRampToValueAtTime(pointY, time + xTime);
       }
 
+    },
+
+    // these settings can be tweaked in the editor
+    publicAudio: function() {
+      this.duration = 1;
+    },
+
+    inputdataChanged: function() {
+      console.log(this.inputdata);
+      for (var i = 0; i < this.inputdata.length; i++) {
+        if (this.inputdata[i] > 0) {
+          this.start();
+        }
+      }
+    },
+
+    // temporary fix because inputdataChanged is not working.
+    update: function() {
+      this.inputdataChanged();
     }
 
   });
