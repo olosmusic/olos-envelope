@@ -37,11 +37,6 @@ olos-envelope
 
     (function(params){
 
-      // to ensure that new instances of olos.envelope dont override the scope of triggerParam
-      var param = function(scope) {
-        this._scope = scope;
-      }
-
       Polymer('olos-envelope', {
 
         color: '#00CCFF',
@@ -123,12 +118,6 @@ olos-envelope
           self.triggerParam = self.$.triggerParam;
           self.triggerParam.scope = self;
           self.triggerParam.callback = self.onData;
-
-          // self.triggerParam = new param(self);
-
-          // self.triggerParam.setValueAtTime = function(time, val) {
-          //   this._scope.onData(time, val);
-          // }
 
         },
 
@@ -336,10 +325,6 @@ olos-envelope
             } catch(e) { }
           }
         },
-
-        // cnvResize: function() {
-        //   console.log('resize');
-        // }
 
       });
 
