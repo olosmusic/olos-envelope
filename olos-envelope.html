@@ -3,6 +3,8 @@
 <link rel="import" href="../core-icons/core-icons.html">
 <link rel="import" href="../core-icons/core-icon-button.html">
 
+<link rel="import" href="../olos-param/olos-param.html">
+
 <!-- <link rel="import" href="../core-icons/av-icons.html"> -->
 
 <!--
@@ -27,8 +29,9 @@ olos-envelope
       <!-- <paper-input label="Frequency (Hz)" type="number" preventinvalidinput="" committedvalue="{{filterFreq}}" value="{{filterFreq}}"></paper-input> -->
     </div>
 
+    <olos-param id="triggerParam"></olos-param>
+
   </template>
-  <!-- <script src="olos-envelope.js"type="text/javascript"></script> -->
 
   <script>
 
@@ -112,22 +115,20 @@ olos-envelope
           self.inputAudio = this.output = this._audioContext.createGain();
           self.setup();
 
-          // var param = function(scope, callback) {
-          //   this.callback = 
-          // };
-          // param.prototype.
         },
 
         attached: function() {
           var self = this;
-          // this.triggerParam._scope = self;
 
-          self.triggerParam = new param(self);
+          self.triggerParam = self.$.triggerParam;
+          self.triggerParam.scope = self;
+          self.triggerParam.callback = self.onData;
 
-          self.triggerParam.setValueAtTime = function(time, val) {
-            console.log(this._scope);
-            this._scope.onData(time, val);
-          }
+          // self.triggerParam = new param(self);
+
+          // self.triggerParam.setValueAtTime = function(time, val) {
+          //   this._scope.onData(time, val);
+          // }
 
         },
 
