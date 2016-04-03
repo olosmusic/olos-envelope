@@ -4,8 +4,10 @@
   "license": "MIT",
   "main": "olos-envelope.html",
   "dependencies": {
-    "polymer": "Polymer/polymer#~0.5.5",
-    "nexusUI": "https://github.com/therewasaguy/nexusUI.git#1.0.6"
+    "polymer": "Polymer/polymer",
+    "iron-icons": "iron-icons",
+    "paper-icon-button": "paper-icon-button",
+    "olos-param": "olosmusic/olos-param#master"
   },
   "devDependencies": {
     "web-component-tester": "Polymer/web-component-tester#^1.1.4"
