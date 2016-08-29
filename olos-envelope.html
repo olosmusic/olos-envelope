@@ -5,12 +5,7 @@
 
 <link rel="import" href="../olos-param/olos-param.html">
 
-<!-- <link rel="import" href="../core-icons/av-icons.html"> -->
-
 <!--
-olos-envelope
-##### Example
-
 Envelope controls a signal value over time.
 
 Max value = 1
@@ -24,8 +19,6 @@ Jesse Allison, Yemin Oh, Sebastien Piquemal, Andrew Bernstein
 @status alpha
 @homepage 
 -->
-<!-- TO DO: check to see if loaded, otherwise load -->
-<!-- <script src="../nexusUI/dist/nexusUI.js"type="text/javascript"></script> -->
 <dom-module id="olos-envelope">
   <link rel="import" type="css" href="olos-envelope.css">
   <template>
@@ -78,7 +71,11 @@ Jesse Allison, Yemin Oh, Sebastien Piquemal, Andrew Bernstein
             value: null,
             notify: true
           },
-          // nexusUI multi envelope
+
+          /**
+           *  <a href="http://nexusosc.com/api/#nexusui-api-envelope" target="_blank"> Nexus UI envelope object</a>
+           *  @type {Object}
+           */
           nexusEl: { value: null },
           output: {
             value: null,
@@ -131,27 +128,20 @@ Jesse Allison, Yemin Oh, Sebastien Piquemal, Andrew Bernstein
 
           Polymer.dom(document.body).removeChild(this.nexusEl.canvas);
 
-          window.env = this;
-          // new
-          // this.width = this.$.container.style.width;
-          // this.height = this.$.container.style.height;
-          // console.log(width, height);
-
           Polymer.dom(this.$.container).appendChild(this.nexusEl.canvas);
           this.nexusEl.canvas.style.setProperty('width', '100%');
           this.nexusEl.canvas.style.setProperty('height', '100%');
           this.set('nexusEl.canvas.width', this.width);
           this.set('nexusEl.canvas.height', this.height);
 
-          // this.set('nexusEl.width', this.width);
-          // this.set('nexusEl.height', this.height);
-          // this.set('nexusEl.actualWid', this.width);
-          // this.set('nexusEl.actualHgt', this.height);
           this.$.container.style.setProperty('width', this.width);
           this.$.container.style.setProperty('height', this.height);
 
           self.nexusEl.draw();
           self.inputAudio = this.output = this._audioContext.createGain();
+          self.signal = new Tone.Signal()
+          self.signal.connect(self.inputAudio.gain);
+
           self.setup();
           self._initParams();
 
@@ -172,7 +162,7 @@ Jesse Allison, Yemin Oh, Sebastien Piquemal, Andrew Bernstein
         setup: function () {
           // default duration
           this.duration = 1;
-          this.set('output.gain.value', 0);
+          this.set('signal.value', 0);
         },
         durationChanged: function () {
           // change the nexusUI animation
@@ -187,8 +177,8 @@ Jesse Allison, Yemin Oh, Sebastien Piquemal, Andrew Bernstein
           }, timeFromNow * 1000);
           ;
           // trigger the envelope
-          this.output.gain.cancelScheduledValues(time);
-          this.output.gain.setValueAtTime(this.output.gain.value, time);
+          this.signal.cancelScheduledValues(time);
+          this.signal.setValueAtTime(this.signal.value, time);
           for (var i = 0; i <= this.nexusEl.val.points.length; i++) {
             // finally, ramp to 0
             var pointY = 0;
@@ -199,9 +189,9 @@ Jesse Allison, Yemin Oh, Sebastien Piquemal, Andrew Bernstein
             }
             var xTime = pointX * this.duration;
             if (i < 3) {
-              this.output.gain.linearRampToValueAtTime(pointY, time + xTime);
+              this.signal.linearRampToValueAtTime(pointY, time + xTime);
             } else {
-              this.output.gain.setTargetAtTime(pointY, time + xTime, 0.1);
+              this.signal.linearRampToValueAtTime(pointY, time + xTime, 0.1);
             }
           }
         },
@@ -214,8 +204,8 @@ Jesse Allison, Yemin Oh, Sebastien Piquemal, Andrew Bernstein
         triggerAttack: function (timeFromNow) {
           var t = timeFromNow || 0;
           var time = this._audioContext.currentTime + t;
-          this.output.gain.cancelScheduledValues(time);
-          this.output.gain.setValueAtTime(this.output.gain.value, time);
+          this.signal.cancelScheduledValues(time);
+          this.signal.setValueAtTime(this.signal.value, time);
           // update UI
           for (var i = 0; i <= 2; i++) {
             // finally, ramp to 0
@@ -228,9 +218,9 @@ Jesse Allison, Yemin Oh, Sebastien Piquemal, Andrew Bernstein
             var xTime = pointX * this.duration;
             // also update output gain
             if (i < 2) {
-              this.output.gain.linearRampToValueAtTime(pointY, time + xTime);
+              this.signal.linearRampToValueAtTime(pointY, time + xTime);
             } else {
-              this.output.gain.setTargetAtTime(pointY, time + xTime, 0.5);
+              this.signal.linearRampToValueAtTime(pointY, time + xTime, 0.5);
             }
           }
         },
@@ -243,8 +233,8 @@ Jesse Allison, Yemin Oh, Sebastien Piquemal, Andrew Bernstein
         triggerRelease: function (timeFromNow) {
           var t = timeFromNow || 0;
           var time = this._audioContext.currentTime + t;
-          this.output.gain.cancelScheduledValues(time);
-          this.output.gain.setValueAtTime(this.output.gain.value, time);
+          this.signal.cancelScheduledValues(time);
+          this.signal.setValueAtTime(this.signal.value, time);
           for (var i = 2; i <= this.nexusEl.val.points.length; i++) {
             // finally, ramp to 0
             var pointY = 0;
@@ -256,9 +246,9 @@ Jesse Allison, Yemin Oh, Sebastien Piquemal, Andrew Bernstein
             var xTime = pointX * this.duration;
             // also update output gain
             if (i < this.nexusEl.val.points.length) {
-              this.output.gain.linearRampToValueAtTime(pointY, time + xTime);
+              this.signal.linearRampToValueAtTime(pointY, time + xTime);
             } else {
-              this.output.gain.setTargetAtTime(pointY, time + xTime, 0.5);
+              this.signal.linearRampToValueAtTime(pointY, time + xTime, 0.5);
             }
           }
         },
